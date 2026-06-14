@@ -122,6 +122,29 @@ function M.new()
         refresh()
     end
 
+    -- Looks up a recipe by item ID, trying AtlasLoot first then Atlas-CFM.
+    -- Returns a normalized recipe table with .craftItem and .reagents, or nil.
+    local function find_recipe( item_id )
+        if GetSpellInfoAtlasLootDB then
+            local recipe = m.find( item_id, GetSpellInfoAtlasLootDB[ "craftspells" ], "craftItem" )
+            if recipe then
+                return recipe, "atlasloot"
+            end
+        end
+
+        if AtlasCFM and AtlasCFM.SpellDB and AtlasCFM.SpellDB.craftspells then
+            local recipe = m.find( item_id, AtlasCFM.SpellDB.craftspells, "item" )
+            if recipe then
+                -- Normalize Atlas-CFM's "item" field to "craftItem" so the rest of
+                -- the code doesn't need to know which addon provided the data.
+                recipe.craftItem = recipe.craftItem or recipe.item
+                return recipe, "atlascfm"
+            end
+        end
+
+        return nil, nil
+    end
+
     local function show_recipe( item, index )
         if selected == index then
             popup.crafters.clear()
@@ -140,17 +163,15 @@ function M.new()
             return
         end
 
-        if GetSpellInfoAtlasLootDB then
-            local recipe = m.find( item.id, GetSpellInfoAtlasLootDB[ "craftspells" ], "craftItem" )
+        local recipe, source = find_recipe( item.id )
 
-            if recipe then
-                recipe.link = m.make_item_link( item.id, item.name, item.quality )
-                popup.info.set( recipe )
-            else
-                popup.info.clear( item.name .. " was not found in AtlasLoot database." )
-            end
+        if recipe then
+            recipe.link = m.make_item_link( item.id, item.name, item.quality )
+            popup.info.set( recipe )
+        elseif source == nil and not GetSpellInfoAtlasLootDB and not (AtlasCFM and AtlasCFM.SpellDB) then
+            popup.info.clear( "AtlasLoot or Atlas-CFM is required to view recipes." )
         else
-            popup.info.clear( "AtlasLoot is required to view recipes." )
+            popup.info.clear( item.name .. " was not found in the recipe database." )
         end
 
         refresh()
