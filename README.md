@@ -47,10 +47,6 @@ Type `/gr` or `/guildrecipes` in chat to see all options.
 
 ## 📦 Installation
 
-Using the Turtle Wow Launcher:
-
-Copy and paste https://github.com/sica42/GuildRecipes into the launcher.
-
 Manual install:
 1. Download or clone the addon into your `Interface\AddOns\` folder.
 2. Make sure the folder is named `GuildRecipes`.
