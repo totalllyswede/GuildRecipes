@@ -82,12 +82,18 @@ function M.new( ace_timer, ace_serializer, ace_comm )
 
 	local function send_tradeskill( tradeskill )
 		m.debug( string.format( "Sending %s", tradeskill ) )
+
+		if not m.db.tradeskills[ tradeskill ] then
+			m.debug( string.format( "No data for tradeskill: %s", tradeskill ) )
+			return
+		end
+
 		local data = {
 			tradeskill = tradeskill,
 			recipes = {}
 		}
 
-		for id, item in m.db.tradeskills[ tradeskill ] do
+		for id, item in pairs( m.db.tradeskills[ tradeskill ] ) do
 			local players = {}
 			for _, p in pairs( m.comma_separated_to_table( item.p ) ) do
 				table.insert( players, m.db.players[ tonumber( p ) ] )
