@@ -87,12 +87,16 @@ function GuildRecipes.events.PLAYER_LOGIN()
 
 	m.player = UnitName( "player" )
 	m.player_class = UnitClass( "player" )
-	m.slash_command.init()
+	if m.slash_command then
+		m.slash_command.init()
+	end
 
 	m.tooltip = CreateFrame( "GameTooltip", "GuildRecipesTooltip", nil, "GameTooltipTemplate" )
 	m.tooltip:SetOwner( WorldFrame, "ANCHOR_NONE" )
 
-	m.update_data()
+	if m.msg then
+		m.update_data()
+	end
 end
 
 function GuildRecipes.events.TRADE_SKILL_SHOW()

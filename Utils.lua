@@ -430,7 +430,7 @@ function M.tradeskill_hash( tradeskill )
 	local ts = M.db.tradeskills[ tradeskill ]
 
 	if ts then
-		for k in ts do
+		for k in pairs( ts ) do
 			table.insert( keys, k )
 		end
 

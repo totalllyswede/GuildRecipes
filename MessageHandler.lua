@@ -109,7 +109,7 @@ function M.new( ace_timer, ace_serializer, ace_comm )
 	end
 
 	local function send_tradeskills()
-		for tradeskill in m.db.tradeskills do
+		for tradeskill in pairs( m.db.tradeskills ) do
 			send_tradeskill( tradeskill )
 		end
 	end
@@ -151,7 +151,7 @@ function M.new( ace_timer, ace_serializer, ace_comm )
 			local tradeskill = data.tradeskill
 			m.db.tradeskills[ tradeskill ] = m.db.tradeskills[ tradeskill ] or {}
 
-			for _, v in data.recipes do
+			for _, v in pairs( data.recipes ) do
 				if v.id then
 					---@type Item
 					local item = nil
@@ -212,7 +212,7 @@ function M.new( ace_timer, ace_serializer, ace_comm )
 			--
 			-- Recive ping
 			--
-			for tradeskill, hash in (data or {}) do
+			for tradeskill, hash in pairs( data or {} ) do
 				local local_hash = m.tradeskill_hash( tradeskill )
 				if local_hash == hash then
 					data[ tradeskill ] = nil

@@ -74,10 +74,12 @@ function M.new()
 			end
 
 			local title_label = frame:CreateFontString( nil, "ARTWORK", "GRFontNormal" )
-			title_label:SetPoint( "TopLeft", frame, "TopLeft", 6, -3 )
+			title_label:SetPoint( "CENTER", frame, "CENTER", 0, 0 )
 			title_label:SetTextColor( 1, 1, 1 )
-			title_label:SetJustifyH( "Left" )
+			title_label:SetJustifyH( "CENTER" )
 			title_label:SetText( title )
+
+			parent.title_label = title_label
 
 			return frame
 		end

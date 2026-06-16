@@ -89,7 +89,7 @@ function M.new()
 
         local function search( skill )
             if m.db.tradeskills[ skill ] then
-                for id, item in m.db.tradeskills[ skill ] do
+                for id, item in pairs( m.db.tradeskills[ skill ] ) do
                     if item.n and string.find( string.upper( item.n ), string.upper( search_str ), nil, true ) then
                         table.insert( search_result, {
                             id = id,
@@ -104,7 +104,7 @@ function M.new()
         end
 
         if not selected_tradeskill or selected_tradeskill == "All tradeskills" then
-            for key in m.db.tradeskills do
+            for key in pairs( m.db.tradeskills ) do
                 search( key )
             end
         else
@@ -120,29 +120,6 @@ function M.new()
         popup.scroll_bar:SetValue( 0 )
 
         refresh()
-    end
-
-    -- Looks up a recipe by item ID, trying AtlasLoot first then Atlas-CFM.
-    -- Returns a normalized recipe table with .craftItem and .reagents, or nil.
-    local function find_recipe( item_id )
-        if GetSpellInfoAtlasLootDB then
-            local recipe = m.find( item_id, GetSpellInfoAtlasLootDB[ "craftspells" ], "craftItem" )
-            if recipe then
-                return recipe, "atlasloot"
-            end
-        end
-
-        if AtlasCFM and AtlasCFM.SpellDB and AtlasCFM.SpellDB.craftspells then
-            local recipe = m.find( item_id, AtlasCFM.SpellDB.craftspells, "item" )
-            if recipe then
-                -- Normalize Atlas-CFM's "item" field to "craftItem" so the rest of
-                -- the code doesn't need to know which addon provided the data.
-                recipe.craftItem = recipe.craftItem or recipe.item
-                return recipe, "atlascfm"
-            end
-        end
-
-        return nil, nil
     end
 
     local function show_recipe( item, index )
@@ -163,15 +140,17 @@ function M.new()
             return
         end
 
-        local recipe, source = find_recipe( item.id )
+        if GetSpellInfoAtlasLootDB then
+            local recipe = m.find( item.id, GetSpellInfoAtlasLootDB[ "craftspells" ], "craftItem" )
 
-        if recipe then
-            recipe.link = m.make_item_link( item.id, item.name, item.quality )
-            popup.info.set( recipe )
-        elseif source == nil and not GetSpellInfoAtlasLootDB and not (AtlasCFM and AtlasCFM.SpellDB) then
-            popup.info.clear( "AtlasLoot or Atlas-CFM is required to view recipes." )
+            if recipe then
+                recipe.link = m.make_item_link( item.id, item.name, item.quality )
+                popup.info.set( recipe )
+            else
+                popup.info.clear( item.name .. " was not found in AtlasLoot database." )
+            end
         else
-            popup.info.clear( item.name .. " was not found in the recipe database." )
+            popup.info.clear( "AtlasLoot is required to view recipes." )
         end
 
         refresh()
@@ -390,7 +369,7 @@ function M.new()
                     local recipe = frame.recipe
 
                     SendChatMessage( string.format( "Crafting of %s requires the following reagents:", recipe.link ), chat_type )
-                    for _, reagent in recipe.reagent_data do
+                    for _, reagent in pairs( recipe.reagent_data ) do
                         SendChatMessage( string.format( "%s (%d)", reagent.link, reagent.count ), chat_type )
                     end
                     return
@@ -580,7 +559,7 @@ function M.new()
                     text_info:SetText( desc )
                     label_reagents:SetText( "Reagents:" )
 
-                    for i, reagent_data in recipe.reagents do
+                    for i, reagent_data in pairs( recipe.reagents ) do
                         local reagent_count = reagent_data[ 2 ] or 1
                         m.get_item_info( reagent_data[ 1 ], function( reagent_info, data )
                             set_reagent( data.i, reagent_info.id, reagent_info.name, reagent_info.texture, reagent_count )
@@ -712,11 +691,31 @@ function M.new()
         return frame
     end
 
+    local function update_title()
+        if not popup or not popup.title_label then return end
+
+        local synced = m.db.players and m.count( m.db.players ) or 0
+        local online = 0
+        if m.db.players then
+            for _, player in pairs( m.db.players ) do
+                if m.guild_member_online( player ) then
+                    online = online + 1
+                end
+            end
+        end
+
+        popup.title_label:SetText( string.format(
+            "Guild Recipes XL v%s  |  |cFFFFFF00Synced Players: %d|r  |  |cFF00FF00Online: %d|r",
+            m.version, synced, online
+        ) )
+    end
+
     local function show()
         if not popup then
             popup = create_frame()
         end
 
+        update_title()
         popup:Show()
         popup.info.refresh()
     end
@@ -740,6 +739,7 @@ function M.new()
     end
 
     local function update()
+        update_title()
         popup.info.refresh()
     end
 

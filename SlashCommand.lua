@@ -92,6 +92,7 @@ function M.new( name, slash_commands )
 			DEFAULT_CHAT_FRAME:AddMessage( "|c" .. m.tagcolor .. "/gr remove_player|r <|cffaaaaaaPlayer|r> Remove player" )
 			DEFAULT_CHAT_FRAME:AddMessage( "|c" .. m.tagcolor .. "/gr clear|r Clears all tradeskills" )
 			DEFAULT_CHAT_FRAME:AddMessage( "|c" .. m.tagcolor .. "/gr refresh|r Request updated tradeskills from other players" )
+			DEFAULT_CHAT_FRAME:AddMessage( "|c" .. m.tagcolor .. "/gr players|r List players with synced tradeskill data" )
 		end )
 
 		register( { "toggle", "t" }, function()
@@ -108,6 +109,26 @@ function M.new( name, slash_commands )
 
 		register( { "refresh", "r" }, function()
 			m.msg.request_tradeskills()
+		end )
+
+		register( { "players", "p" }, function()
+			if not m.db.players or not next( m.db.players ) then
+				m.info( "No players synced yet.", true )
+				return
+			end
+
+			m.info( "Players with synced tradeskill data:", true )
+			for _, player in pairs( m.db.players ) do
+				local tradeskills = {}
+				for ts, recipes in pairs( m.db.tradeskills ) do
+					if m.count_recipes( recipes, player ) > 0 then
+						table.insert( tradeskills, ts )
+					end
+				end
+				local online = m.guild_member_online( player ) and "|cff00ff00online|r" or "|cffaaaaaaoffline|r"
+				local ts_list = getn( tradeskills ) > 0 and table.concat( tradeskills, ", " ) or "none"
+				m.info( string.format( "%s [%s] - %s", player, online, ts_list ), true )
+			end
 		end )
 
 		register( { "clear", "c" }, function()
