@@ -161,6 +161,25 @@ function M.guild_member_online( player_name )
 	return false
 end
 
+---@return table<string, boolean> -- set of internal tradeskill names (e.g. "Alchemy") the player currently knows
+---@nodiscard
+function M.get_known_tradeskills()
+	local known = {}
+	local reverse = M.build_reverse_trade_map( GetLocale() )
+
+	for i = 1, GetNumSkillLines() do
+		local skill_name, is_header = GetSkillLineInfo( i )
+		if not is_header and skill_name then
+			local internal = reverse[ skill_name ]
+			if internal then
+				known[ internal ] = true
+			end
+		end
+	end
+
+	return known
+end
+
 function M.get_server_timestamp()
 	local server_hour, server_min = GetGameTime()
 	local local_time = date( "*t" )

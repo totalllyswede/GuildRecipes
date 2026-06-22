@@ -1,5 +1,5 @@
 # GuildRecipes XL
-**Version:** 1.0
+**Version:** 1.2
 **Game Version:** OctoWoW (1.18) or other WoW Client 1.12.1
 
 I didn't like how small things were in the original version. I also have literally no idea how to code, but I made the UI bigger. :high_brightness:
