@@ -52,7 +52,6 @@ Type `/gr` or `/guildrecipes` in chat to see all options.
 - `/gr refresh` — Request updated tradeskills from all guild members.
 - `/gr players` — List all players with synced tradeskill data, their online status, and which tradeskills are known.
 - `/gr remove_player <Player>` — Remove a player from all recipes.
-- `/gr version` — Check which version other guild members are running.
 
 ---
 
