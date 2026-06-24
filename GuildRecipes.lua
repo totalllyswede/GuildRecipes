@@ -185,8 +185,20 @@ function GuildRecipes.events.CRAFT_SHOW()
 end
 
 function GuildRecipes.events.UNIT_INVENTORY_CHANGED()
-	if arg1 == "player" and m.tsgui.is_visible() then
-		m.tsgui.update()
+	-- This can fire many times in quick succession (e.g. once per item when
+	-- looting a stack), and each call to tsgui.update() re-scans the guild
+	-- roster and redraws the visible list. Debounce so a burst of these only
+	-- triggers one actual update, instead of one per event.
+	if arg1 == "player" and m.tsgui.is_visible() and m.ace_timer then
+		if m.inventory_update_timer then
+			m.ace_timer.CancelTimer( m, m.inventory_update_timer )
+		end
+		m.inventory_update_timer = m.ace_timer.ScheduleTimer( m, function()
+			m.inventory_update_timer = nil
+			if m.tsgui.is_visible() then
+				m.tsgui.update()
+			end
+		end, 0.5 )
 	end
 end
 

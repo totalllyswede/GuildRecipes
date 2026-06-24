@@ -118,6 +118,7 @@ function M.new( name, slash_commands )
 			end
 
 			m.info( "Players with synced tradeskill data:", true )
+			local online_roster = m.build_online_roster()
 			for _, player in pairs( m.db.players ) do
 				local tradeskills = {}
 				for ts, recipes in pairs( m.db.tradeskills ) do
@@ -125,7 +126,7 @@ function M.new( name, slash_commands )
 						table.insert( tradeskills, ts )
 					end
 				end
-				local online = m.guild_member_online( player ) and "|cff00ff00online|r" or "|cffaaaaaaoffline|r"
+				local online = online_roster[ player ] and "|cff00ff00online|r" or "|cffaaaaaaoffline|r"
 				local ts_list = getn( tradeskills ) > 0 and table.concat( tradeskills, ", " ) or "none"
 				m.info( string.format( "%s [%s] - %s", player, online, ts_list ), true )
 			end

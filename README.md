@@ -1,5 +1,5 @@
 # GuildRecipes XL
-**Version:** 1.2
+**Version:** 1.3
 **Game Version:** OctoWoW (1.18) or other WoW Client 1.12.1
 
 I didn't like how small things were in the original version. I also have literally no idea how to code, but I made the UI bigger. :high_brightness:
@@ -52,6 +52,7 @@ Type `/gr` or `/guildrecipes` in chat to see all options.
 - `/gr refresh` — Request updated tradeskills from all guild members.
 - `/gr players` — List all players with synced tradeskill data, their online status, and which tradeskills are known.
 - `/gr remove_player <Player>` — Remove a player from all recipes.
+- `/gr version` — Check which version other guild members are running.
 
 ---
 

@@ -308,16 +308,17 @@ function M.new()
 
         frame.set = function( item )
             local have_alts = GuildAlts and GuildAlts.version and true or false
+            local online_roster = m.build_online_roster()
             local players = ""
 
             for player_id in string.gmatch(item.players, "([^,]+)") do
                 local player = m.db.players[ tonumber(player_id) ]
-                local color = m.guild_member_online( player ) and "FFFFFF" or "AAAAAA"
+                local color = online_roster[ player ] and "FFFFFF" or "AAAAAA"
                 local main
                 if have_alts then
                     main = GuildAlts.get_main( player )
                     if main then
-                        local main_color = m.guild_member_online( main ) and "FFFFFF" or "AAAAAA"
+                        local main_color = online_roster[ main ] and "FFFFFF" or "AAAAAA"
                         main = string.format( "|cFF%s(%s)|r", main_color, main )
                     end
                 end
@@ -697,8 +698,9 @@ function M.new()
         local synced = m.db.players and m.count( m.db.players ) or 0
         local online = 0
         if m.db.players then
+            local online_roster = m.build_online_roster()
             for _, player in pairs( m.db.players ) do
-                if m.guild_member_online( player ) then
+                if online_roster[ player ] then
                     online = online + 1
                 end
             end

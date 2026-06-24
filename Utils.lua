@@ -161,6 +161,23 @@ function M.guild_member_online( player_name )
 	return false
 end
 
+---@return table<string, boolean> -- name -> online, built from a single pass over the guild roster
+---@nodiscard
+-- Use this instead of calling guild_member_online() in a loop (e.g. once per
+-- synced player, or once per recipe row) -- each guild_member_online() call
+-- re-scans the entire roster, so doing that repeatedly is O(n*m) and can
+-- visibly stutter the game when triggered by a frequent event.
+function M.build_online_roster()
+	local online = {}
+	for i = 1, GetNumGuildMembers() do
+		local name, _, _, _, _, _, _, _, is_online = GetGuildRosterInfo( i )
+		if name and is_online == 1 then
+			online[ name ] = true
+		end
+	end
+	return online
+end
+
 ---@return table<string, boolean> -- set of internal tradeskill names (e.g. "Alchemy") the player currently knows
 ---@nodiscard
 function M.get_known_tradeskills()
@@ -328,12 +345,19 @@ function M.get_item_info( id, ufunc, data )
 	} )
 
 	if not M.item_info_frame:GetScript( "OnUpdate" ) then
+		local elapsed = 0
+		local poll_interval = 0.1
+
 		M.item_info_frame:SetScript( "OnUpdate", function()
 			local item_data = M.get_item_info_items[ 1 ]
 			if not item_data then
 				M.item_info_frame:SetScript( "OnUpdate", nil )
 				return
 			end
+
+			elapsed = elapsed + arg1
+			if elapsed < poll_interval then return end
+			elapsed = 0
 
 			M.tooltip:SetOwner( WorldFrame, "ANCHOR_NONE" )
 			M.tooltip:SetHyperlink( "item:" .. item_data.id )
